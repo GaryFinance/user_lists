@@ -131,3 +131,152 @@ get이라는 메소는 인자로 받는 것중에 첫번째인자로 경로를 �
 
 누가 ? get 이라는 메소드 실행이 다 끝난후에 처리한 결과를 각각에 저장시켜 준다.
 
+
+
+http://localhost:8080 주소로 방식은 GET방식으로 요청이 오면 서버는 index.html파일을 열어서 Document Data로 변환해서 
+
+request한 클라이언트에서 response해준다.
+
+index.html 파일에 Hello world!! 라는 문자열을 표현하는 내용의 html tag언어로 이루어진 코드가 있고 그 코드를 문서데이터 변환해서 
+
+클라이언트 보내준다.
+
+
+
+app.js파일의 다음과 같이 코드를 수정한다.
+
+html 탬플릿 폴더가 있는 기본 폴더를 지정해주기 위해 set매소드를 이용하요 등록한다.
+
+```javascript
+app.set('views' , __dirname +'/views')
+```
+
+현재 app.js파일 실행되고 있는 위치를 기준으로 views폴더를 기본 탬플릿 폴더로 지정해준다.
+
+render 매소를 실행했을때 그안 파일이 어떤 형태의 파일로 되어 있는 것을 받을 수 있는지 지정해 주어햔다.
+
+그리고 express는 ejs엔진을 사용하는 데 ejs는 html 문서안데 일부 자바스크립트 코드를 편하게 작성하고자 만든 엔진이다.
+
+다음과 같이 app.js에 코드를 추가한다.
+
+```javascript
+app.set('view engine', 'ejs')
+
+app.engine('html', require('ejs').renderFile)
+```
+
+
+
+app.get('/') ... 이부분을 다음과 같이 수정한다.
+
+```javascript
+app.get('/', function(req, res){
+    return res.render('index.html')
+})
+```
+
+
+
+
+
+views/index.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Hello World!!</h1>
+</body>
+</html>
+```
+
+
+
+res.render(html 탬플릿 , 데이터(객체) ) 형식으로 코드를 작성하면 html 문서와 data를 함께 변형해서 문서 데이터를 만들어 
+
+보내준다.
+
+다음과 같이 코드를 수정한다.
+
+app.js 
+
+```javascript
+app.get('/', function(req, res){
+    return res.render('index.html',{name:"태경"})
+})
+```
+
+
+
+views/index.html 
+
+```html
+<body>
+    <h1>Hello World !!</h1>
+    <h2>안녕하세요 <%= name %>님</h2>
+</body>
+```
+
+ejs문법을 이용하여 데이터를 받아 처리한다.
+
+
+
+ejs문법과 관련된 간단한 요약 설명은 다음과 같다.
+
+
+
+## 기본 문법
+
+- 주석 : <%# ... %>
+- JS 코드 : <% ... %>
+- 변수 출력(html escape 처리: >를 $gt로 변환) : <%= ... %>
+- 태그내부 공백 제거 : <%_ ... _%>
+- html escape안하고 변수 출력 : <%- ... %>
+
+
+
+라우팅 파일을 만들어서 app.js에 미들웨어로 등록을 시킨다음 서버를 구성한다.
+
+라우팅 파일은 router/main.js파일에 다음과 같이 코드를 생성하여 만든다.`
+
+그런데 자바스크립트언어는 파일을 만들어 다른 파일에서 import하기 위해서는 그 파일을 꼭!!!!! export해야 한다.(모듈등으로 만들어 임포트해서 사용하는 코드들을 export 한다고 지정해줘야 만이 다른 파일에서 import해서 쓸수 있기 때문이다.)
+
+```javascript
+var express = require('express')
+
+var route = express.Router()
+
+route.get('/', function(req, res){
+    return res.render('index.html',{name:"태경"})
+})
+
+route.get("/data",function(req, res){
+    return res.send("데이터 보낸겁니다.")
+})
+
+module.exports = route
+```
+
+
+
+app.js파일에 라우팅 파일을 임포트해서 미들웨어 등록을 한다.
+
+다음과 같이 코드를 추가한다.
+
+```javascript
+...
+var apiRouter = require('./router/main')
+....
+
+
+// 미들웨어 등록
+app.use('/',apiRouter)
+....
+```
+
