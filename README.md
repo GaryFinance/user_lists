@@ -446,3 +446,26 @@ views/details.html
 </html>
 ```
 
+잠깐 여기서 명령 프롬프 명령어들
+
+```powershell
+cd /
+cd apps
+mkdir user_lists
+cd user_lists
+
+npm init -y
+
+code .
+```
+
+
+
+visualstudiocode 에디터를 이용해서 코드를 프로그래밍 한후 
+
+서버를 실행 시키는 방법
+
+```powershell
+node app.js
+```
+
