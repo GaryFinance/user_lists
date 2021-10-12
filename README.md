@@ -280,3 +280,169 @@ app.use('/',apiRouter)
 ....
 ```
 
+
+
+게시판 모양을 만들어 보기 위해서 임의의 데이터를 하나 만들어 준다.
+
+data.js파일을 생성후 다음과 같이 코딩한다.
+
+```javascript
+articles = [  {  'id': 1,  'title':'Article one',  'body':'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',  'author':'vasanth',  'create_date':'04-09-2018',  }, 
+{  'id': 2,  'title':'Article two',  'body':'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit  in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',  'author':'vasanth nagarajan',  'create_date':'05-09-2018',  },  
+{  'id': 3,  'title':'Article three',  'body':'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',  'author':'nagarajan vasanth',  'create_date':'04-09-2018',  } ]
+
+
+function Articles(){
+    return articles
+}
+
+module.exports = Articles;
+```
+
+
+
+
+
+index.html에 위와 같은 데이터를 랜더링해 주기 위해  data.js파일을 router/main.js 에서 임포트 하고 
+
+main.js 의 app.route('/').... 부분을 다음과 같이 수정한다.
+
+router/main.js
+
+```javascript
+....
+var Articles = require('../data')
+...
+
+route.get('/', function(req, res){
+    data = Articles()
+    return res.render('index.html',{name:"태경" , articles:data})
+})
+```
+
+
+
+index.html 을 랜더링할때 data 를 활용할 수 있다.
+
+index.html을 다음과 같이 수정한다.
+
+```html
+...
+ <table style="width:100% ; ">
+        <tr >
+          <th>ID</th>
+          <th>TITLE</th>
+          <th>AUTHOR</th>
+          <th>DATE</th>
+          <th>EDIT</th>
+        </tr>
+
+    <% for (i=0;i<articles.length;i++) { %>
+        <tr>
+            <td><%= articles[i]['id'] %></td>
+            <td><%= articles[i]['title'] %></td>
+            <td><%= articles[i]['author'] %></td>
+            <td><%= articles[i]['create_date'] %></td>
+            <td><button>삭제</button><button>수정</button></td>
+        </tr>
+        <% } %>
+    </table>
+    <% for (i=0;i<articles.length;i++) { %>
+    <h2> <%= articles[i]['title'] %></h2>
+    <p> <%= articles[i]['body'] %></p>
+    <% } %>
+ ...
+```
+
+
+
+table 안에 타이틀 클릭하면 상세 페이지로 이동하는 기능을 구현한다.
+
+views/index.html 을 다음과 같이 수정한다.
+
+
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        table, th, td {
+            border:1px solid black;
+        }
+    </style>
+    <title>Document</title>
+</head>
+<body>
+    <h1>Hello World !!</h1>
+    <h2>안녕하세요 <%= name %>님</h2>
+
+    <table style="width:100% ; ">
+        <tr >
+          <th>ID</th>
+          <th>TITLE</th>
+          <th>AUTHOR</th>
+          <th>DATE</th>
+          <th>EDIT</th>
+        </tr>
+
+    <% for (i=0;i<articles.length;i++) { %>
+        <tr>
+            <td><%= articles[i]['id'] %></td>
+            <td><a href="/details/<%= articles[i]['id'] %>"><%= articles[i]['title'] %></a></td>
+            <td><%= articles[i]['author'] %></td>
+            <td><%= articles[i]['create_date'] %></td>
+            <td><button>삭제</button><button>수정</button></td>
+        </tr>
+        <% } %>
+    </table>
+    
+
+</body>
+</html>
+```
+
+
+
+타이틀을 클릭 했을때 예를 들어 첫번째를 클릭하면 http://localhost:8080/details/1 여기로 get방식으로 이동한다.
+
+맨뒤에 나오는 경로 1과 같은것을 parameter처리해서 구현한다.
+
+처음 경로의 한 부분을 파라미터 처리 한 부분을 테스트 하기 위해 
+
+router/main.js 에 다음과 같은 코드를 추가한다.
+
+```javascript
+route.get('/details/:id', function(req, res){
+    
+    console.log(req.params.id)
+    // return res.send("SUCCESS")
+    return res.render('details.html' ,{data:req.params.id} )
+})
+```
+
+
+
+
+
+views/details.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>details</title>
+</head>
+<body>
+    <h1>상세페이지</h1>
+    <h2> <%= data %></h2>
+</body>
+</html>
+```
+

@@ -27,17 +27,14 @@
     <% for (i=0;i<articles.length;i++) { %>
         <tr>
             <td><%= articles[i]['id'] %></td>
-            <td><%= articles[i]['title'] %></td>
+            <td><a href="/details/<%= articles[i]['id'] %>"><%= articles[i]['title'] %></a></td>
             <td><%= articles[i]['author'] %></td>
             <td><%= articles[i]['create_date'] %></td>
             <td><button>삭제</button><button>수정</button></td>
         </tr>
         <% } %>
     </table>
-    <% for (i=0;i<articles.length;i++) { %>
-    <h2> <%= articles[i]['title'] %></h2>
-    <p> <%= articles[i]['body'] %></p>
-    <% } %>
+    
 
 </body>
 </html>

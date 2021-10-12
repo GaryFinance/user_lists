@@ -11,6 +11,13 @@ route.get("/data",function(req, res){
     return res.send("데이터 보낸겁니다.")
 })
 
+route.get('/details/:id', function(req, res){
+    
+    console.log(req.params.id)
+    // return res.send("SUCCESS")
+    return res.render('details.html' ,{data:req.params.id} )
+})
+
 module.exports = route
 
 
