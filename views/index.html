@@ -4,29 +4,36 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        table, th, td {
+            border:1px solid black;
+        }
+    </style>
     <title>Document</title>
 </head>
 <body>
     <h1>Hello World !!</h1>
     <h2>안녕하세요 <%= name %>님</h2>
 
-    <table style="width:100% ; border: 1px solid;">
-        <tr>
-          <th>Company</th>
-          <th>Contact</th>
-          <th>Country</th>
+    <table style="width:100% ; ">
+        <tr >
+          <th>ID</th>
+          <th>TITLE</th>
+          <th>AUTHOR</th>
+          <th>DATE</th>
+          <th>EDIT</th>
         </tr>
+
+    <% for (i=0;i<articles.length;i++) { %>
         <tr>
-          <td>Alfreds Futterkiste</td>
-          <td>Maria Anders</td>
-          <td>Germany</td>
+            <td><%= articles[i]['id'] %></td>
+            <td><%= articles[i]['title'] %></td>
+            <td><%= articles[i]['author'] %></td>
+            <td><%= articles[i]['create_date'] %></td>
+            <td><button>삭제</button><button>수정</button></td>
         </tr>
-        <tr>
-          <td>Centro comercial Moctezuma</td>
-          <td>Francisco Chang</td>
-          <td>Mexico</td>
-        </tr>
-      </table>
+        <% } %>
+    </table>
     <% for (i=0;i<articles.length;i++) { %>
     <h2> <%= articles[i]['title'] %></h2>
     <p> <%= articles[i]['body'] %></p>
