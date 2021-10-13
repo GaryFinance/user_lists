@@ -79,7 +79,7 @@ node app.js 실행하면 http://localhost:8080 서버가 실행이 되고
 
 
 
-![image-20211008212935266](C:\Users\82108\AppData\Roaming\Typora\typora-user-images\image-20211008212935266.png)
+![image-20211008212935266](https://user-images.githubusercontent.com/77881011/137109709-ccd4a207-866d-47da-bddd-012d5e3eccbf.png)
 
 
 
@@ -446,6 +446,8 @@ views/details.html
 </html>
 ```
 
+
+
 잠깐 여기서 명령 프롬프 명령어들
 
 ```powershell
@@ -468,4 +470,153 @@ visualstudiocode 에디터를 이용해서 코드를 프로그래밍 한후
 ```powershell
 node app.js
 ```
+
+
+
+router/main.js 에 route.get('/details/:id') ..... 부분을 다음과 같이 수정한다.
+
+
+
+```javascript
+route.get('/details/:id', function(req, res){
+    
+    console.log(req.params.id)
+    id = parseInt(req.params.id)
+    data = Articles()
+    console.log(data[id-1])
+    article = data[id-1]
+    // return res.send("SUCCESS")
+    return res.render('details.html' ,{data: article} )
+})
+```
+
+
+
+
+
+views/details.html  
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>details</title>
+</head>
+<body>
+    <h1>상세페이지</h1>
+    <h2>제목 : <%= data['title'] %></h2><br>
+    <hr>
+    <h3>글쓴이 :<%= data['author'] %> </h3><br><hr>
+    <p>내용 :</p><br>
+    <span><%= data['body'] %></span><br><hr>
+    <h5><%= data['create_date'] %></h5>
+    <a href="/"><button>되돌아가기</button></a>
+</body>
+</html>
+```
+
+
+
+static 한 웹을 구성하였는데 이제는 Dynamic 한 웹 사이트를 구성하기 위해 DATABASE와 상호 연동할 수 있는 
+
+서버를 구현한다.
+
+그러기위해서 mysql 를 설치하고  database 생성후 list 와 user 테이블 생성한다.
+
+쿼리문을 이용한 database(schema )생성 
+
+```mysql
+CREATE DATABASE modu;
+```
+
+modu 스키마에 list 테이블 생성
+
+```mysql
+CREATE TABLE `modu`.`new_table` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(45) NULL,
+  `description` TEXT NULL,
+  `author` VARCHAR(45) NULL,
+  `create_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+```
+
+
+
+modu 스키마에 users 테이블 생성
+
+```mysql
+CREATE TABLE `modu`.`users` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(45) NULL,
+  `email` VARCHAR(45) NULL,
+  `create_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+```
+
+
+
+list 테이블 콘텐츠를 삽입(INSERT)하여 본다.
+
+nodejs를 이용해서 mysql 서버에 접속후 연동하는 기능을 구현한다.
+
+
+
+# Node.js와 MySQL 연동
+
+index.js를 아래와 같이 변경한다.
+
+`createConnection` 메소드의 인자로 전달되는 객체에 자신의 데이터베이스 정보(유저명과 패스워드 등)를 입력하여야 한다. 설정 정보의 관리에 대해서는 [Node.js에서 비밀 설정 정보(Secrets) 관리](https://poiemaweb.com/nodejs-kepping-secrets)를 참조하기 바란다.
+
+```javascript
+const mysql      = require('mysql');
+const connection = mysql.createConnection({
+  host     : 'localhost',
+  user     : '< MySQL username >',
+  password : '< MySQL password >',
+  database : 'my_db'
+});
+
+connection.connect();
+
+connection.query('SELECT * from list', (error, rows, fields) => {
+  if (error) throw error;
+  console.log('User info is: ', rows);
+});
+
+connection.end();
+```
+
+
+
+mysqlTest.js 
+
+```javascript
+var mysql = require('mysql')
+
+const conn = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'root',
+    password : '1234',
+    database : 'modu'
+  });
+
+conn.connect()
+
+
+
+conn.query('SELECT * FROM  list;', function (error, result) {
+    if (error) throw error;
+    console.log('list info is: ', result);
+  });
+```
+
+
 

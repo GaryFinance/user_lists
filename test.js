@@ -14,7 +14,10 @@ articles = [  {  'id': 1,  'title':'Article one',  'body':'Lorem ipsum dolor sit
 //     console.log(articles[i]['title'])
 // }
 
-var Articles = require('./data')
+// var Articles = require('./data')
 
-data = Articles()
-console.log(data)
+// data = Articles()
+// console.log(data)
+
+
+

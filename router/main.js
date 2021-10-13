@@ -14,8 +14,12 @@ route.get("/data",function(req, res){
 route.get('/details/:id', function(req, res){
     
     console.log(req.params.id)
+    id = parseInt(req.params.id)
+    data = Articles()
+    console.log(data[id-1])
+    article = data[id-1]
     // return res.send("SUCCESS")
-    return res.render('details.html' ,{data:req.params.id} )
+    return res.render('details.html' ,{data: article} )
 })
 
 module.exports = route
