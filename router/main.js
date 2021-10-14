@@ -47,6 +47,16 @@ route.get('/details/:id', function(req, res){
     // return res.render('details.html' ,{data: article} )
 })
 
+route.get('/delete/:id', function(req , res){
+        id = req.params.id
+        console.log(id)
+        sql = 'DELETE FROM list WHERE (id ='+id+' )'
+        conn.query(sql, function(err , result){
+            res.redirect('/')
+        })
+        // res.send("Success")
+})
+// DELETE FROM `modu`.`list` WHERE (`id` = '1');
 module.exports = route
 
 
