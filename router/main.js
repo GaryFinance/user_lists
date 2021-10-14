@@ -56,6 +56,16 @@ route.get('/delete/:id', function(req , res){
         })
         // res.send("Success")
 })
+
+route.post('/insert', function(req, res){
+    id = req.body.id
+    title = req.body.title
+    description = req.body.description
+    author = req.body.author
+    data = `${id}, ${title}, ${description}, ${author}`
+    res.send(data)
+
+})
 // DELETE FROM `modu`.`list` WHERE (`id` = '1');
 module.exports = route
 

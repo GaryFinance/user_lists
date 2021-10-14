@@ -552,13 +552,7 @@ DEFAULT CHARACTER SET = utf8;
 modu 스키마에 users 테이블 생성
 
 ```mysql
-CREATE TABLE `modu`.`users` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `username` VARCHAR(45) NULL,
-  `email` VARCHAR(45) NULL,
-  `create_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`));
-
+CREATE TABLE `modu`.`users` (  `id` INT NOT NULL AUTO_INCREMENT,  `username` VARCHAR(45) NULL,  `email` VARCHAR(45) NULL,  `create_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,  PRIMARY KEY (`id`));
 ```
 
 
@@ -619,4 +613,109 @@ conn.query('SELECT * FROM  list;', function (error, result) {
 ```
 
 
+
+mysql의 modu db의  list 테이블에 콘텐츠를 insert 하는 기능을 구현하여 본다.
+
+mysqlTest.js 에 다음과 같은 코드를 추가한다.
+
+
+
+```javascript
+sql = "INSERT INTO list (title, description, author) VALUES ('제목', '내용을 적는 부분이다.', '작가');"
+conn.query(sql ,function(err , result){
+  if (err) throw err;
+  console.log(result)
+})
+
+conn.end()
+```
+
+
+
+index.html에 data.js 만들어 놓은 내용을 랜더링 하는 것이 아니라 mysql 저장되어 있는 콘텐츠를 불러와서 랜더링하는 기능을 구현한다.
+
+router/main.js 
+
+```javascript
+route.get('/', function(req, res){
+    conn.connect()
+    conn.query('SELECT * FROM  list;', function (error, result) {
+        if (error) throw error;
+        for (i=0;i<result.length;i++){
+            console.log(result[i].title);
+        }
+        return res.render('index.html',{name:"태경" , articles:result})
+      })
+    conn.end()
+    // data = Articles()
+    // return res.render('index.html',{name:"태경" , articles:data})
+})
+```
+
+
+
+![image-20211014201810122](https://user-images.githubusercontent.com/77881011/137307788-7a2a3e42-8ffe-47c6-98cf-73a1f80ec71a.png)
+
+http://localhost:8080 GET방식으로 요청을 하면 다음과 같은 페이지가 나타난다.
+
+
+
+title 컬럼에 해당하는 부분을 클릭하면 
+
+http://localhost:8080/details/id 이동하면서 각각에 해당하는 상세페이지가 보여주도록 한다.
+
+
+
+router/main.js의 route.get('/details/:id',  ..... 부분을 다음과 같이 수정한다.
+
+```javascript
+route.get('/details/:id', function(req, res){
+    
+    console.log(req.params.id)
+    id = parseInt(req.params.id)
+    sql = 'SELECT * FROM list WHERE id=' +id
+    
+    conn.query(sql , function(err , result){
+        console.log(result)
+        return res.render('details.html' ,{data: result[0]} )
+    })
+
+    // data = Articles()
+    // console.log(data[id-1])
+    // article = data[id-1]
+    // return res.send("SUCCESS")
+    // return res.render('details.html' ,{data: article} )
+})
+
+```
+
+
+
+게시판에 삭제 버튼을 누루면 mysql에 list 테이블에 해당 열을 삭제 하는 기능 구현
+
+views/html 다음과 같이 수정
+
+```html
+....
+<td><a href="/delete/<%= articles[i]['id'] %>"><button>삭제</button></a><button>수정</button></td>
+...        
+```
+
+
+
+http://localhost:8080/delete/id GET방식으로 요청이 오면 그 id에 해당하는 행을 삭제 하는 기능 구현
+
+router/main.js
+
+```javascript
+route.get('/delete/:id', function(req , res){
+        id = req.params.id
+        console.log(id)
+        sql = 'DELETE FROM list WHERE (id ='+id+' )'
+        conn.query(sql, function(err , result){
+            res.redirect('/')
+        })
+        // res.send("Success")
+})
+```
 
