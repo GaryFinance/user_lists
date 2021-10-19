@@ -57,14 +57,51 @@ route.get('/delete/:id', function(req , res){
         // res.send("Success")
 })
 
+route.get('/insert', function(req ,res){
+    res.render('add_article.html')
+})
+
 route.post('/insert', function(req, res){
-    id = req.body.id
+    
     title = req.body.title
     description = req.body.description
     author = req.body.author
-    data = `${id}, ${title}, ${description}, ${author}`
-    res.send(data)
+    sql = `INSERT INTO list (title, description, author) VALUES ( '${title}','${description}' ,'${author}');`
+    console.log(sql)
+    conn.query(sql, function(error, result){
+        if (error) {
+            console.log(error)
+        } else {
+            res.redirect('/')
+        }
+       
+    })
+})
 
+route.get('/edit/:id', function(req, res){
+    id = parseInt(req.params.id)
+    // sql = 'SELECT * FROM list WHERE id=' +id
+    sql = `SELECT * FROM list WHERE id=${id}`
+    conn.query(sql , function(err , result){
+        console.log(result)
+        return res.render('edit_article.html' ,{data: result[0]} )
+    })
+})
+
+route.post('/edit/:id', function(req, res){
+    id = parseInt(req.params.id)
+    title = req.body.title
+    description = req.body.description
+    author = req.body.author
+    sql=`UPDATE list SET title = '${title}', description = '${description}'  , author='${author}' WHERE (id = '${id}');`
+
+    conn.query(sql, function(err, result){
+        if (err) {
+            console.error(err)
+        } else {
+            res.redirect('/')
+        }
+    })
 })
 // DELETE FROM `modu`.`list` WHERE (`id` = '1');
 module.exports = route

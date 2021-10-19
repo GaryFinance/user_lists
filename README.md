@@ -552,7 +552,13 @@ DEFAULT CHARACTER SET = utf8;
 modu 스키마에 users 테이블 생성
 
 ```mysql
-CREATE TABLE `modu`.`users` (  `id` INT NOT NULL AUTO_INCREMENT,  `username` VARCHAR(45) NULL,  `email` VARCHAR(45) NULL,  `create_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,  PRIMARY KEY (`id`));
+CREATE TABLE `modu`.`users` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(45) NULL,
+  `email` VARCHAR(45) NULL,
+  `create_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
 ```
 
 
@@ -718,4 +724,169 @@ route.get('/delete/:id', function(req , res){
         // res.send("Success")
 })
 ```
+
+
+
+http://locaslhot:8080/insert POST방식으로 json형식의 데이터 보내면 서버는 그걸 받아서 mysql 에 저장하는 기능을 구현한다.
+
+router/main.js에 다음과 같은 코드를 추가한다.
+
+```javascript
+route.post('/insert', function(req, res){
+    
+    title = req.body.title
+    description = req.body.description
+    author = req.body.author
+    sql = `INSERT INTO list (title, description, author) VALUES ( '${title}','${description}','${author}');`
+    conn.query(sql, function(err, result){
+        res.redirect('/')
+    })
+})
+```
+
+
+
+postman을 이용해서 { "title":"노드js" , "description":"노드js로 구현하는 웹", "author":"김태경"} requset의 body 에 같이 보낸다.
+
+
+
+게시판 글을 쓰는 웹 페이지를 구현한다.
+
+http://localhost:8080/insert GET 방식으로 요청하면 
+
+add_article.html 파일을 랜던링 하게 한다.
+
+router/main.js에 다음과 같은 코드를 추가한다.
+
+```javascript
+route.get('/insert', function(req ,res){
+    res.render('add_article.html')
+})
+```
+
+
+
+views/add_article.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>글쓰기 페이지</h1>
+    <form action="/insert" , method="POST">
+        <h3>제목 : <input type="text" name="title"></h3> 
+        <h3>내용 : <textarea name="description" cols="30" rows="10"></textarea></h3> 
+        <h3>글쓴이 : <input type="text" name="author"></h3> 
+        <input type="submit" value="저장">
+    </form>
+</body>
+</html>
+```
+
+
+
+http://localhost:8080/insert POST방식으로 { }json형식의 데이터를 보내면 서버는 그 데이터를  mysql 저장 한다.
+
+router/main.js
+
+```javascript
+route.post('/insert', function(req, res){
+    
+    title = req.body.title
+    description = req.body.description
+    author = req.body.author
+    sql = `INSERT INTO list (title, description, author) VALUES ( '${title}','${description}' ,'${author}');`
+    console.log(sql)
+    conn.query(sql, function(error, result){
+        if (error) {
+            console.log(error)
+        } else {
+            res.redirect('/')
+        }
+       
+    })
+})
+```
+
+
+
+수정버튼을 누루면 http://localhost:8080/edit/id GET 방식으로 요청을 하고 서버는 
+
+edit_article.html를 랜더링하도록 한다.
+
+router/main.js
+
+```javascript
+route.get('/edit/:id', function(req, res){
+    id = parseInt(req.params.id)
+    // sql = 'SELECT * FROM list WHERE id=' +id
+    sql = `SELECT * FROM list WHERE id=${id}`
+    conn.query(sql , function(err , result){
+        console.log(result)
+        return res.render('edit_article.html' ,{data: result[0]} )
+    })
+})
+```
+
+
+
+views/edit_article.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>글수정 페이지</h1>
+    <form action="/edit/<%= data['id'] %>" , method="POST">
+        <h3>제목 : <input type="text" name="title" value="<%= data['title'] %>"></h3> 
+        <h3>내용 : <textarea name="description" cols="30" rows="10"><%= data['description'] %></textarea></h3> 
+        <h3>글쓴이 : <input type="text" name="author" value="<%= data['author'] %>"></h3> 
+        <input type="submit" value="수정">
+    </form>
+</body>
+</html>
+```
+
+
+
+수정한 결과를 mysql 저장하기 위해 
+
+router/main.js 
+
+
+
+```javascript
+route.post('/edit/:id', function(req, res){
+    id = parseInt(req.params.id)
+    title = req.body.title
+    description = req.body.description
+    author = req.body.author
+    sql=`UPDATE list SET title = '${title}', description = '${description}'  , author='${author}' WHERE (id = '${id}');`
+
+    conn.query(sql, function(err, result){
+        if (err) {
+            console.error(err)
+        } else {
+            res.redirect('/')
+        }
+    })
+})
+
+```
+
+
+
+
 
